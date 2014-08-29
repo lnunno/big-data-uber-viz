@@ -8,6 +8,7 @@ Created on Aug 28, 2014
 
 @author: lnunno
 '''
+import json
 import pandas as pd
 
 def filter_uber_df(df, time_of_day=None, day_filters=None, night_begin_hour=17, morning_begin_hour=5):
@@ -80,8 +81,26 @@ def load_file(time_of_day=None, day_filters=None, nrows=None, night_begin_hour=1
                    morning_begin_hour=morning_begin_hour) 
     return df
 
+class PandasEncoder(json.JSONEncoder):
+    
+    def default(self, o):
+        if isinstance(o, pd.Timestamp):
+            return o.isoformat()
+        return json.JSONEncoder.default(self, o)
+
 def to_uber_json(df, save_path=None):
-    return df.to_json(save_path)
+    groups = df.groupby('tripid')
+    trip_dict = {}
+    for (index, idf) in groups:
+        idf = idf[['timestamp','lat','long']] # Only use these columns.
+        trip_dict[str(index)] = idf.values.tolist()
+        out = json.dumps(trip_dict, cls=PandasEncoder)
+        pass
+    if save_path:
+        with open(save_path, 'w') as f:
+            json.dump(trip_dict, f, cls=PandasEncoder)
+    else:
+        return json.dumps(trip_dict, cls=PandasEncoder)
     
 def main():
     day_map = {"M":0,"T":1,"W":2,"R":3,"F":4,"S":5,"U":6}
