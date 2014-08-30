@@ -123,28 +123,73 @@ def generate_samples():
     to_uber_json(weekend_df, 'sample_weekend.json')
 
 def generate_real_data():
+    day_dict = {
+                "0":"monday",
+                "1":"tuesday",
+                "2":"wednesday",
+                "3":"thursday",
+                "4":"friday",
+                "5":"saturday",
+                "6":"sunday"
+                }
     weekdays = list(range(0,5))
     weekends = list(range(5,7))
     print('Loading frame for all...')
     df = load_file()
     print('Generating all json...')
     to_uber_json(df,'all.json')
+    
     print('Loading night frame...')
     night_df = filter_uber_df(df=df.copy(), time_of_day='night')
     print('Generating night json...')
     to_uber_json(night_df, 'night.json')
+    
     print('Loading day frame...')
     day_df = filter_uber_df(df=df.copy(), time_of_day='day')
     print('Generating day json...')
     to_uber_json(day_df, 'day.json')
+    
     print('Loading weekday frame...')
     weekday_df = filter_uber_df(df=df.copy(), day_filters=weekdays)
     print('Generating weekday json...')
     to_uber_json(weekday_df, 'weekday.json')
+    
+    print('Generating weekday day...')
+    weekday_day_df = filter_uber_df(df=weekday_df.copy(), time_of_day='day')
+    to_uber_json(weekday_day_df, 'weekday_day.json')
+    
+    print('Generating weekday night...')
+    weekday_night_df = filter_uber_df(df=weekday_df.copy(), time_of_day='night')
+    to_uber_json(weekday_night_df, 'weekday_night.json')
+    
     print('Loading weekend frame...')
     weekend_df = filter_uber_df(df=df.copy(), day_filters=weekends)
     print('Generating weekend json...')
     to_uber_json(weekend_df, 'weekend.json')
+    
+    print('Generating weekend day...')
+    weekend_day_df = filter_uber_df(df=weekend_df.copy(), time_of_day='day')
+    to_uber_json(weekend_day_df, 'weekend_day.json')
+    
+    print('Generating weekend night...')
+    weekend_night_df = filter_uber_df(df=weekend_df.copy(), time_of_day='night')
+    to_uber_json(weekend_night_df, 'weekend_night.json')
+    
+    for (day_num_str,day_str) in day_dict.items():
+        day_num = int(day_num_str)
+        dow_df = filter_uber_df(df=df.copy(), day_filters=[day_num])
+        
+        print('Generating %s all...' % (day_str))
+        to_uber_json(dow_df, '%s.json' % (day_str))
+        
+        print('Generating %s day...' % (day_str))
+        day_df = filter_uber_df(df=dow_df.copy(), time_of_day='day')
+        to_uber_json(day_df, '%s_day.json' % (day_str))
+        
+        print('Generating %s night...' % (day_str))
+        night_df = filter_uber_df(df=dow_df.copy(), time_of_day='night')
+        to_uber_json(night_df, '%s_night.json' % (day_str))
+    
     print('Done with all.')
     
 def main(debug=False):
@@ -156,5 +201,5 @@ def main(debug=False):
         generate_real_data()
         
 if __name__ == '__main__':
-    main(debug=True)
+    main(debug=False)
         
