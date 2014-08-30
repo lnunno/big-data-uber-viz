@@ -1,14 +1,17 @@
+var cabCoordinates = {};
+var cabPath = {};
+var cabSymbol;
+
 function initialize() {
   var mapOptions = {
-      zoom: 15,
-      center: new google.maps.LatLng(37.8, -122.4),
+      zoom: 13,
+      center: new google.maps.LatLng(37.783333, -122.416667),
       mapTypeId: google.maps.MapTypeId.TERRAIN
-};
+  };
 
-  var map = new google.maps.Map(document.getElementById('map-canvas'),
-				mapOptions);
-
-  var cabCoordinates = [
+  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  
+  cabCoordinates['878'] = [
 	new google.maps.LatLng( 37.788023, -122.410054 ),
 	new google.maps.LatLng( 37.788107, -122.409932 ),
 	new google.maps.LatLng( 37.788170, -122.409863 ),
@@ -41,15 +44,55 @@ function initialize() {
 	new google.maps.LatLng( 37.788809, -122.401932 )
   ];
   
-  var cabPath = new google.maps.Polyline({
-    path: cabCoordinates,
+  // Define the symbol, using one of the predefined paths ('CIRCLE')
+  // supplied by the Google Maps JavaScript API.
+  cabSymbol = {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 8,
+    strokeColor: '#393',
+    strokeOpacity: 1.0,
+    strokWeight: 2
+  };
+
+  
+  cabPath['878'] = new google.maps.Polyline
+  ({
+    path: cabCoordinates['878'],
     geodesic: true,
     strokeColor: '#FF0000',
     strokeOpacity: 1.0,
-    strokeWeight: 2
+    strokeWeight: 2,
+    icons:
+      [{
+	icon: cabSymbol,
+	offset: '0%'
+      }],
+    map: map
   });
+  
+  animateCabs();
 
-  cabPath.setMap(map);
+  //cabPath['878'].setMap(map);
+}
+
+// Use the DOM setInterval() function to change the offset of the symbol
+// at fixed intervals.
+function animateCabs() {
+    var count = 0;
+    
+    window.setInterval(
+      function()
+      {
+	count = (count + 1) % 200;
+
+	var icons = cabPath['878'].get('icons');
+	
+	icons[0].offset = (count / 2) + '%';
+	
+	cabPath['878'].set('icons', icons);
+      },
+      20
+    );
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
