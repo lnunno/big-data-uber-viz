@@ -1,8 +1,17 @@
 // Place code here.
 google.load('visualization', '1', { 'packages': ['map'] });
-google.setOnLoadCallback(drawMap);
+google.setOnLoadCallback(initialize);
 
-function drawMap() {
+function initialize() {
+  var dayLink = "http://cs.unm.edu/~lnunno/uber-viz/json/sample_day.json";
+  $.ajax({
+      dataType: "json",
+      url: dayLink,
+      data: data,
+      success: (function (data) {
+          alert("data loaded.");
+      })
+  });
   var data = google.visualization.arrayToDataTable([
     ['Country', 'Population'],
     ['China', 'China: 1,363,800,000'],
@@ -17,7 +26,7 @@ function drawMap() {
     ['Japan', 'Japan: 127,120,000']
   ]);
 
-var options = { showTip: true };
+var options = { showTip: true, enableScrollWheel: true };
 
 var map = new google.visualization.Map(document.getElementById('chart_div'));
 
