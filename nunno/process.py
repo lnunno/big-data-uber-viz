@@ -10,6 +10,9 @@ Created on Aug 28, 2014
 '''
 import json
 import pandas as pd
+import os
+
+data_dir = 'json/'
 
 def filter_uber_df(df, time_of_day=None, day_filters=None, night_begin_hour=17, morning_begin_hour=5):
     '''
@@ -92,13 +95,14 @@ class PandasEncoder(json.JSONEncoder):
             return o.isoformat()
         return json.JSONEncoder.default(self, o)
 
-def to_uber_json(df, save_path=None):
+def to_uber_json(df, save_file_name=None):
     groups = df.groupby('tripid')
     trip_dict = {}
     for (index, idf) in groups:
         idf = idf[['timestamp','lat','long']] # Only use these columns.
         trip_dict[str(index)] = idf.values.tolist()
-    if save_path:
+    if save_file_name:
+        save_path = os.path.join(data_dir,save_file_name)
         with open(save_path, 'w') as f:
             json.dump(trip_dict, f, cls=PandasEncoder)
     else:
@@ -152,5 +156,5 @@ def main(debug=False):
         generate_real_data()
         
 if __name__ == '__main__':
-    main(debug=False)
+    main(debug=True)
         
