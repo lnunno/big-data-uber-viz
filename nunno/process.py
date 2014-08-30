@@ -75,7 +75,11 @@ def load_file(time_of_day=None, day_filters=None, nrows=None, night_begin_hour=1
     '''
     uber_file_path = '../uber_gps_tsv/all_header.tsv'
     df = pd.read_table(uber_file_path, sep='\t', nrows=nrows)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], infer_datetime_format=True)
+    
+    # Convert all the times to US/Pacific.
+    df['timestamp'] = df['timestamp'].apply(lambda x: x.tz_localize('UTC').tz_convert('US/Pacific'))
+     
     filter_uber_df(df, time_of_day=time_of_day, 
                    day_filters=day_filters, night_begin_hour=night_begin_hour, 
                    morning_begin_hour=morning_begin_hour) 
@@ -94,16 +98,13 @@ def to_uber_json(df, save_path=None):
     for (index, idf) in groups:
         idf = idf[['timestamp','lat','long']] # Only use these columns.
         trip_dict[str(index)] = idf.values.tolist()
-        out = json.dumps(trip_dict, cls=PandasEncoder)
-        pass
     if save_path:
         with open(save_path, 'w') as f:
             json.dump(trip_dict, f, cls=PandasEncoder)
     else:
         return json.dumps(trip_dict, cls=PandasEncoder)
-    
-def main():
-    day_map = {"M":0,"T":1,"W":2,"R":3,"F":4,"S":5,"U":6}
+
+def generate_samples():
     weekdays = list(range(0,5))
     weekends = list(range(5,7))
     df = load_file(nrows=1000)
@@ -116,7 +117,40 @@ def main():
     to_uber_json(weekday_df, 'sample_weekday.json')
     weekend_df = filter_uber_df(df=df.copy(), day_filters=weekends)
     to_uber_json(weekend_df, 'sample_weekend.json')
+
+def generate_real_data():
+    weekdays = list(range(0,5))
+    weekends = list(range(5,7))
+    print('Loading frame for all...')
+    df = load_file()
+    print('Generating all json...')
+    to_uber_json(df,'all.json')
+    print('Loading night frame...')
+    night_df = filter_uber_df(df=df.copy(), time_of_day='night')
+    print('Generating night json...')
+    to_uber_json(night_df, 'night.json')
+    print('Loading day frame...')
+    day_df = filter_uber_df(df=df.copy(), time_of_day='day')
+    print('Generating day json...')
+    to_uber_json(day_df, 'day.json')
+    print('Loading weekday frame...')
+    weekday_df = filter_uber_df(df=df.copy(), day_filters=weekdays)
+    print('Generating weekday json...')
+    to_uber_json(weekday_df, 'weekday.json')
+    print('Loading weekend frame...')
+    weekend_df = filter_uber_df(df=df.copy(), day_filters=weekends)
+    print('Generating weekend json...')
+    to_uber_json(weekend_df, 'weekend.json')
+    print('Done with all.')
+    
+def main(debug=False):
+    if debug:
+        print('Running in DEBUG mode.')
+        generate_samples()
+    else:
+        print('Running in STANDARD mode.')
+        generate_real_data()
         
 if __name__ == '__main__':
-    main()
+    main(debug=False)
         
