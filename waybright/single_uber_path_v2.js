@@ -1,12 +1,12 @@
 function initialize() {
   var mapOptions = {
-    zoom: 15,
-	center: new google.maps.LatLng(37.8, -122.4),
-    mapTypeId: google.maps.MapTypeId.TERRAIN
-  };
+      zoom: 15,
+      center: new google.maps.LatLng(37.8, -122.4),
+      mapTypeId: google.maps.MapTypeId.TERRAIN
+};
 
   var map = new google.maps.Map(document.getElementById('map-canvas'),
-								mapOptions);
+				mapOptions);
 
   var cabCoordinates = [
 	new google.maps.LatLng( 37.788023, -122.410054 ),
