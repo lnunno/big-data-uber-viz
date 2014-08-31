@@ -1,14 +1,23 @@
 <html>
   <head>
+  <title></title>
+  <style>
+  #map_canvas {
+    height: 100%;
+    margin: 0px;
+    padding: 0px
+  }
+  </style>
   <!-- JQuery -->
   <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
   <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-  <!-- Google Charts -->
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <!-- Google Maps -->
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <!-- Main script -->
   <script type="text/javascript" src="uber-viz.js">
   </script>
   </head>
   <body>
-    <div id="chart_div"></div>
+    <div id="map_canvas"></div>
   </body>
 </html>

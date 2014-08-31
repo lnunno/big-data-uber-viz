@@ -1,34 +1,47 @@
-// Place code here.
-google.load('visualization', '1', { 'packages': ['map'] });
-google.setOnLoadCallback(initialize);
+function toLatLng(uberDataPoint){
+  var lat = uberDataPoint[1];
+  var lng = uberDataPoint[2];
+  return new google.maps.LatLng(lat,lng);
+}
+
+function toPolyLine(uberArray, map, color){
+  // Initialize default arguments.
+  if (color == undefined) {
+    color = "#000000"; // Black
+  }
+
+  var arr = [];
+  for (var i = 0; i < uberArray.length; i++) {
+    var latlngobj = toLatLng(uberArray[i]);
+    arr.push(latlngobj);      
+  }
+  return new google.maps.Polyline({
+    path: arr,
+    strokeColor: color,
+    map: map
+  });
+}
+
+function drawUberFileOnMap(map, fileLink, color){
+  $.get( fileLink, function( data ) {
+      console.log(fileLink + " was loaded successfully.");
+      $.each(data, function(key, value) {
+          var polyLine = toPolyLine(value, map, color);
+          console.log(key, polyLine);
+      });
+  });
+}
 
 function initialize() {
-  var dayLink = "http://cs.unm.edu/~lnunno/uber-viz/json/sample_day.json";
-  $.ajax({
-      dataType: "json",
-      url: dayLink,
-      data: data,
-      success: (function (data) {
-          alert("data loaded.");
-      })
-  });
-  var data = google.visualization.arrayToDataTable([
-    ['Country', 'Population'],
-    ['China', 'China: 1,363,800,000'],
-    ['India', 'India: 1,242,620,000'],
-    ['US', 'US: 317,842,000'],
-    ['Indonesia', 'Indonesia: 247,424,598'],
-    ['Brazil', 'Brazil: 201,032,714'],
-    ['Pakistan', 'Pakistan: 186,134,000'],
-    ['Nigeria', 'Nigeria: 173,615,000'],
-    ['Bangladesh', 'Bangladesh: 152,518,015'],
-    ['Russia', 'Russia: 146,019,512'],
-    ['Japan', 'Japan: 127,120,000']
-  ]);
+    var map_canvas = document.getElementById('map_canvas');
+    var map_options = {
+      center: new google.maps.LatLng(37.7833, -122.4167),
+      zoom: 13,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    var map = new google.maps.Map(map_canvas, map_options);
 
-var options = { showTip: true, enableScrollWheel: true };
-
-var map = new google.visualization.Map(document.getElementById('chart_div'));
-
-map.draw(data, options);
-}; 
+    var dayFile = "http://cs.unm.edu/~lnunno/uber-viz/json/sample_day.json";
+    drawUberFileOnMap(map, dayFile);
+}
+google.maps.event.addDomListener(window, 'load', initialize);
