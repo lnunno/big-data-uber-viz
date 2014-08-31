@@ -22,26 +22,47 @@ function toPolyLine(uberArray, map, color){
   });
 }
 
+// A list of all lines that are drawn on the map.
+var polyLineLs = [];
+
 function drawUberFileOnMap(map, fileLink, color){
   $.get( fileLink, function( data ) {
       console.log(fileLink + " was loaded successfully.");
       $.each(data, function(key, value) {
           var polyLine = toPolyLine(value, map, color);
-          console.log(key, polyLine);
+          polyLineLs.push(polyLine);
       });
   });
 }
 
 function initialize() {
+    var sanFran = new google.maps.LatLng(37.7833, -122.4167);
     var map_canvas = document.getElementById('map_canvas');
     var map_options = {
-      center: new google.maps.LatLng(37.7833, -122.4167),
-      zoom: 13,
+      center: sanFran,
+      zoom: 12,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     }
     var map = new google.maps.Map(map_canvas, map_options);
 
-    var dayFile = "http://cs.unm.edu/~lnunno/uber-viz/json/sample_day.json";
-    drawUberFileOnMap(map, dayFile);
+    var colors = ["#0000FF", "#FF0000", "#00FF00", "#FF00FF", "#00FFFF", "#0F0F00", "#F0F0FF"];
+    var fileRoot = "http://cs.unm.edu/~lnunno/uber-viz/json/";
+
+    $( "#vizFiles" ).change(function() {
+      // Clear the previously plotted data.
+      for (i = 0; i < polyLineLs.length; i++) {                           
+        polyLineLs[i].setMap(null); //or line[i].setVisible(false);
+      }
+
+      // Clear the old array.
+      // See: http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
+      polyLineLs.length = 0;
+
+      $( "#vizFiles option:selected" ).each(function(i) {
+        var value = $( this ).val();
+        var fileName = fileRoot + value +".json";
+        drawUberFileOnMap(map, fileName, colors[i]);
+      });
+    });
 }
 google.maps.event.addDomListener(window, 'load', initialize);
