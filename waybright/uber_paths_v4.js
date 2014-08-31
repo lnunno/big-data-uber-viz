@@ -15,7 +15,7 @@ var stepIncrement       = 1;        // Every window.interval call simulates x mi
 var maxAnimationCount   = (endTimeInMinutes - startTimeInMinutes) / stepIncrement;
 var animationCount      = 0;
 var stepInterval        = 250;      // How often windows.interval called in milliseconds
-
+var intervalManager;
 
 // Define the symbol, using one of the predefined paths ('CIRCLE') supplied by the Google Maps JavaScript API.
 function CabSymbol() {
@@ -59,6 +59,7 @@ function CabStats(startStep, stopStep) {
 // First function called when loading script, pretty much just loads JSON file and Google Map
 function initialize()
 {
+    // Load the JSON file, and send result to the loadCabs(data) method
     var xhr = new XMLHttpRequest();
     xhr.open('GET', "day.json", true);
     xhr.onload = function () {
@@ -159,7 +160,7 @@ function loadCabs(data)
 
 // Use the DOM setInterval() function to change the offset of the symbol at fixed intervals.
 function beginIntervals() {
-    window.setInterval(animateCabs, stepInterval);
+    intervalManager = window.setInterval(animateCabs, stepInterval);
 }
 
 
