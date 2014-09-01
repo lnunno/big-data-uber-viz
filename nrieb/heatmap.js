@@ -1,5 +1,22 @@
+// @author nrieb
+
 var map;
 var SAMPLE_SIZE = 100000
+
+//See https://stackoverflow.com/questions/439463/how-to-get-get-and-post-variables-with-jquery
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+    var params = {},
+        tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
 
 // See https://stackoverflow.com/questions/11935175/sampling-a-random-subset-from-an-array
 function getRandomSubarray(arr, size) {
@@ -32,8 +49,21 @@ function success(data, textStatus, jqXHR) {
 
 function initialize() {
     Math.seedrandom('a better seed?')
+    var $_GET = getQueryParams(document.location.search);
+    var url = "http://cs.unm.edu/~lnunno/uber-viz/json/fileLoader.php?name="
+    var timeOfDay = "day"
+    if ("time" in $_GET) {
+	if ($_GET["time"] == "day") {
+	    timeOfDay = "day"
+	}
+        else
+	{
+	    timeOfDay = "night"
+	}
+    }
+    console.log(url + timeOfDay + ".json")
     $.ajax({
-        url: "http://cs.unm.edu/~lnunno/uber-viz/json/fileLoader.php?name=night.json",
+        url: url + timeOfDay + ".json",
         dataType:"json",
         async: true,
 	success: success,
